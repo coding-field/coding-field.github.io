@@ -71,19 +71,19 @@ console.readln = async function (options) {
             return line;
         }
     }
-    const prompt = document.querySelector("#prompt");
+    const promptInput = document.querySelector("#input");
     const attrs = options && options.attrs || { type: 'text' };
     for (let k in attrs) {
-        prompt.setAttribute(k, attrs[k]);
+        promptInput.setAttribute(k, attrs[k]);
     }
-    prompt.style.visibility = "visible";
+    promptInput.style.visibility = "visible";
     await thread.nextTick();
-    prompt.focus();
+    promptInput.focus();
     console._readlnResult = undefined;
     while (true) {
         const result = console._readlnResult;
         if (result !== undefined) {
-            prompt.style.visibility = "hidden";
+            promptInput.style.visibility = "hidden";
             return result;
         }
         await thread.sleep(20);
@@ -111,45 +111,71 @@ console.onPrompt = function (e) {
     }
 };
 window.visualViewport.addEventListener('resize', () => setTimeout(console.fixViewport));
-window.onload = () => {
-    console.fixViewport();
-    // document.querySelector("#prompt").addEventListener('focus', () => setTimeout(console.fixViewport));
-    // document.querySelector("#prompt").addEventListener('blur', () => setTimeout(console.fixViewport));
-    (async () => {
-        const allFunctions = [];
-        for (let f in window) {
-            if (
-                typeof window[f] === "function" &&
-                !/^_/.test(f) &&
-                /^async function/.test(window[f].toString())
-            ) {
-                allFunctions.push(f);
+async function loadScript(script, mainFnName) {
+    return new Promise((resolve, reject) => {
+        const sourceElement = document.querySelector('#source');
+        const match = location.hostname.match(/^([\w\-]+)\.github\.io$/i);
+        let source = '';
+        if (match)
+            source = `https://github.com/${match[1]}/${match[1]}.github.io/blob/main/${script}`
+        else
+            source = `${script}`
+        while (sourceElement.firstChild)
+            sourceElement.removeChild(sourceElement.firstChild);
+        const loadingTextNode = document.createTextNode(`⌛`)
+        sourceElement.appendChild(loadingTextNode);
+        sourceElement.setAttribute('href', source);
+        sourceElement.appendChild(document.createTextNode(`${source}`));
+    
+        const scriptElement = document.createElement("script");
+        scriptElement.setAttribute("src", script);
+        scriptElement.addEventListener("load", () => {
+            loadingTextNode.nodeValue = '✔️';
+            try {
+                if (typeof window[mainFnName] === 'function') {
+                    if (/^async function/i.test(window[mainFnName].toString())) {
+                        window[mainFnName]().then(resolve).catch(reject);
+                        return;
+                    } else {
+                        window[mainFnName]();
+                    }
+                }
+                resolve();
+            } catch (e) {
+                reject(e);
             }
-        }
-        console.println(`欢迎来到大师的程序游戏厅！\n\n我们现在有这些游戏：`);
-        let index = 0;
-        for (let f of allFunctions) {
-            index++;
-            console.println(`[${index}] ${f}`);
-        }
-        console.println(`\n请选择你要玩的游戏，并输入它的序号：`);
-        const choosenIndex = await console.readlnInt({
-            checkFn: number => (
-                number < 1 ||
-                number > allFunctions.length
-            ) && `输入错误，请输入 1 到 ${allFunctions.length} 的游戏序号！`
         });
-        const choosen = allFunctions[choosenIndex - 1];
-        console.clear();
-        console.println(`正在载入 ${choosen}：`);
-        await thread.sleep(500);
-        console.clear();
-        console.println(`加载完毕 ${choosen}`);
-        await thread.sleep(500);
-        console.clear();
-        await window[choosen]();
-    })().catch((e) => {
-        console.error(e);
-        alert(e.message || e);
+        
+        scriptElement.addEventListener("error", e => {
+            loadingTextNode.nodeValue = '❌';
+            reject(e);
+        });
+        document.body.appendChild(scriptElement);
     });
-};
+}
+async function presentMenu(menu, mainFnName) {
+    const allFunctions = [];
+    console.println(`欢迎来到大师的程序游戏厅！\n\n我们现在有这些游戏：`);
+    let index = 0;
+    for (let f in menu) {
+        console.println(`[${index + 1}] ${f}`);
+        allFunctions.push(f); 
+        index++;
+    }
+    console.println(`\n请选择你要玩的游戏，并输入它的序号：`);
+    const choosenIndex = await console.readlnInt({
+        checkFn: number => (
+            number < 1 ||
+            number > allFunctions.length
+        ) && `输入错误，请输入 1 到 ${allFunctions.length} 的游戏序号！`
+    });
+    const choosen = allFunctions[choosenIndex - 1];
+    console.clear();
+    console.println(`正在载入 ${choosen}：`);
+    await thread.sleep(500);
+    console.clear();
+    await loadScript(menu[choosen], mainFnName);
+}
+window.addEventListener("load", () => {
+    console.fixViewport();
+});

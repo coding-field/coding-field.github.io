@@ -19,6 +19,7 @@ body {
     color: #ddd;
     overflow-y: scroll;
     overflow-wrap: break-word;
+    z-index: 1;
 }
 
 #screen>div {
@@ -30,10 +31,31 @@ body {
     left: 0;
     right: 0;
     height: 2em;
+}
+#input {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+
     background: black;
     border: 1px 0 0 0;
     border-color: #333;
     color: white;
     visibility: hidden;
     overflow: hidden;
+    z-index: 2;
+}
+#source {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 25px;
+    padding: 1.25em 0;
+    font-size: 0.5em;
+    z-index: 3;
+}
+#source, #source:active {
+    color: white;
 }

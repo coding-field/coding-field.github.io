@@ -73,7 +73,14 @@ console.readln = async function (options) {
     }
     const promptInput = document.querySelector("#input");
     const attrs = options && options.attrs || { type: 'text' };
+    let blured = false;
     for (let k in attrs) {
+        if (!blured && promptInput.getAttribute(k) !== attrs[k] && /iOS/.test(navigator.userAgent)) {
+            // need reset keyboard for iOS
+            promptInput.blur();
+            await thread.nextTick();
+            blured = true;
+        }
         promptInput.setAttribute(k, attrs[k]);
     }
     promptInput.style.visibility = "visible";
@@ -107,7 +114,6 @@ console.onPrompt = function (e) {
         e.target.value = "";
         console._readlnResult = line;
         console.print(`${line}\n`);
-        e.target.blur();
         e.preventDefault();
     }
 };

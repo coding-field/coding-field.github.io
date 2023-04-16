@@ -34,7 +34,7 @@ async function 猜数字() {
         while (answer === undefined) {
             const readline = await console.readln();
             if (!/^y|n$/i.test(readline)) {
-                console.println(`你输入既不是 Y 也不是 N！`);
+                console.println(`你的输入既不是 Y 也不是 N！`);
                 continue;
             }
             answer = /^y$/i.test(readline);

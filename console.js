@@ -2,6 +2,7 @@ console.fixViewport = function () {
     const viewportHeight = window.visualViewport && window.visualViewport.height || window.innerHeight;
     const screen = document.querySelector("#screen");
     const prompt = document.querySelector("#prompt");
+    document.body.style.height = `${viewportHeight}px`;
     screen.style.height = `${viewportHeight - prompt.offsetHeight - 20}px`;
     prompt.style.top = `${viewportHeight - prompt.offsetHeight - 10}px`;
     if (window.scrollTo) window.scrollTo(0,0);

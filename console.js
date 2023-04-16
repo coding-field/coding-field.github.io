@@ -107,6 +107,7 @@ console.onPrompt = function (e) {
         e.target.value = "";
         console._readlnResult = line;
         console.print(`${line}\n`);
+        e.target.blur();
         e.preventDefault();
     }
 };

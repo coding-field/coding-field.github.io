@@ -4,6 +4,8 @@ console.fixViewport = function () {
     const prompt = document.querySelector("#prompt");
     screen.style.height = `${viewportHeight - prompt.offsetHeight - 20}px`;
     prompt.style.top = `${viewportHeight - prompt.offsetHeight - 10}px`;
+    if (window.scrollTo) window.scrollTo(0,0);
+    document.body.scrollTop = 0;
     console.scrollToEnd();
 };
 console.scrollToEnd = function () {
@@ -110,8 +112,8 @@ console.onPrompt = function (e) {
 window.visualViewport.addEventListener('resize', () => setTimeout(console.fixViewport));
 window.onload = () => {
     console.fixViewport();
-    document.querySelector("#prompt").addEventListener('focus', () => setTimeout(console.fixViewport));
-    document.querySelector("#prompt").addEventListener('blur', () => setTimeout(console.fixViewport));
+    // document.querySelector("#prompt").addEventListener('focus', () => setTimeout(console.fixViewport));
+    // document.querySelector("#prompt").addEventListener('blur', () => setTimeout(console.fixViewport));
     (async () => {
         const allFunctions = [];
         for (let f in window) {

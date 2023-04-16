@@ -114,18 +114,16 @@ window.visualViewport.addEventListener('resize', () => setTimeout(console.fixVie
 async function loadScript(script, mainFnName) {
     return new Promise((resolve, reject) => {
         const sourceElement = document.querySelector('#source');
+        let href = `${script}`;
         const match = location.hostname.match(/^([\w\-]+)\.github\.io$/i);
-        let source = '';
         if (match)
-            source = `https://github.com/${match[1]}/${match[1]}.github.io/blob/main/${script}`
-        else
-            source = `${script}`
+        href = `https://github.com/${match[1]}/${match[1]}.github.io/blob/main/${script}`
         while (sourceElement.firstChild)
             sourceElement.removeChild(sourceElement.firstChild);
         const loadingTextNode = document.createTextNode(`⌛`)
         sourceElement.appendChild(loadingTextNode);
-        sourceElement.setAttribute('href', source);
-        sourceElement.appendChild(document.createTextNode(`${source}`));
+        sourceElement.setAttribute('href', href);
+        sourceElement.appendChild(document.createTextNode(`${script}`));
     
         const scriptElement = document.createElement("script");
         scriptElement.setAttribute("src", script);
@@ -139,6 +137,8 @@ async function loadScript(script, mainFnName) {
                     } else {
                         window[mainFnName]();
                     }
+                } else {
+                    throw new Error(`window.${mainFnName} is not a function (${typeof window[mainFnName]})`);
                 }
                 resolve();
             } catch (e) {
@@ -153,7 +153,7 @@ async function loadScript(script, mainFnName) {
         document.body.appendChild(scriptElement);
     });
 }
-async function presentMenu(menu, mainFnName) {
+console.presentMenu = async function(menu, mainFnName) {
     const allFunctions = [];
     console.println(`欢迎来到大师的程序游戏厅！\n\n我们现在有这些游戏：`);
     let index = 0;

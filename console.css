@@ -4,6 +4,8 @@ body {
     font-size: 1.5em;
     padding: 0;
     margin: 5px;
+    overflow: hidden;
+    height: 10px;
 }
 
 #screen {
